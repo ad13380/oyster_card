@@ -35,11 +35,11 @@ describe Journey do
   describe '#in_journey' do
     it { is_expected.to respond_to(:in_journey?) }
 
-    it 'sets the card to be in jounrey after entering station' do
+    it 'sets the card to be in journey after entering station' do
       expect(journey_in_process).to be_in_journey
     end
 
-    it 'sets the card to not be in jounrey after exiting station' do
+    it 'sets the card to not be in journey after exiting station' do
       expect(journey_complete).not_to be_in_journey
     end
   end
