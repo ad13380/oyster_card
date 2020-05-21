@@ -4,17 +4,8 @@ describe Oystercard do
   let(:entry_station) { double :entry_station }
   let(:exit_station) { double :exit_station }
   let(:card) { subject }
-
-  let(:card_with_balance) do
-    subject.top_up(Oystercard::MIN_FARE)
-    subject
-  end
-
-  let(:card_completed_journey) do
-    card_with_balance.touch_in(entry_station)
-    card_with_balance.touch_out(exit_station)
-    card_with_balance
-  end
+  let(:card_touch_in) { subject.top_up(Oystercard::MIN_FARE) ; subject.touch_in(entry_station) }
+  let(:card_completed_journey) { card_touch_in ; subject.touch_out(exit_station) }
 
   describe '#balance' do
     it { is_expected.to respond_to :balance }
@@ -38,56 +29,29 @@ describe Oystercard do
     end
   end
 
-  describe '#in_journey?' do
-    it "does not start in a journey" do
-      expect(card).not_to be_in_journey
-    end
-  end
-
   describe '#touch_in' do
     it { is_expected.to respond_to(:touch_in).with(1).argument }
-
-    it "sets card to be in journey" do
-      card_with_balance.touch_in(entry_station)
-      expect(card_with_balance).to be_in_journey
-    end
 
     it "raises an error when trying to touch in with a balance of less than the minimum fare" do
       expect{ card.touch_in(entry_station) }.to raise_error "Balance is bellow minimum amount of £#{Oystercard::MIN_FARE}"
     end
 
-    it "remembers the current entry station" do
-      card_with_balance.touch_in(entry_station)
-      expect(card_with_balance.entry_station).to eq entry_station
+    it 'deducts penalty fare if entering a station while in journey' do
+      card_touch_in
+      expect { card.touch_in(entry_station) }.to change{ card.balance }.by(- Oystercard::PENALTY_FARE)
     end
   end
 
   describe '#touch_out' do
     it { is_expected.to respond_to(:touch_out).with(1).argument }
 
-    it "sets card to not be in journey" do
-      expect(card_completed_journey).not_to be_in_journey
+    it 'deducts fare when touching out of a completed journey' do
+      card_touch_in
+      expect { card.touch_out(exit_station) }.to change{ card.balance }.by(- Oystercard::MIN_FARE)
     end
 
-    it "deducts fare when touching out" do
-      card_with_balance.touch_in(entry_station)
-      expect { card_with_balance.touch_out(exit_station) }.to change{ card_with_balance.balance }.by(- Oystercard::MIN_FARE)
-    end
-
-    it "remembers the current exit station" do
-      expect(card_completed_journey.exit_station).to eq exit_station
-    end
-  end
-
-  describe '#journey' do
-    it { is_expected.to respond_to :journey }
-
-    it "returns the entry and exit stations of a completed journey" do
-      expect(card_completed_journey.journey).to eq([{ :"entry station" => entry_station, :"exit station" => exit_station }])
-    end
-
-    it "has no saved journeys by default" do
-      expect(card.journey).to be_empty
+    it 'deducts penalty fare if exiting a station while not in journey' do
+      expect { card.touch_out(exit_station) }.to change{ card.balance }.by(- Oystercard::PENALTY_FARE)
     end
   end
 end
