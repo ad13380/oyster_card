@@ -5,6 +5,4 @@ attr_reader :name, :zone
     @name = name
     @zone = zone
   end
-
-
 end

@@ -1,23 +1,32 @@
 require 'station'
 
-  describe Station do
-    describe '.new'
-      it "takes one argument" do
-        expect(Station).to respond_to(:new).with(2).argument
-      end
+describe Station do
+  let(:station_class) { Station }
+  let(:station) { Station.new('Homerton', 2) }
 
-    it 'responds to name' do
-      expect(Station).to respond_to(:name)
+  describe '#initialize' do
+    it 'is expected to respond to #new with 2 arguments' do
+      expect(station_class).to respond_to(:new).with(2).arguments
     end
-
-    it 'exposes the name' do
-      subject = Station.new('Homerton', 'Zone 2')
-      expect(subject.name).to eq 'Homerton'
-    end
-
-    it 'exposes the zone' do
-      subject = Station.new('Homerton', 'Zone 2')
-      expect(subject.zone).to eq 'Zone 2'
-    end
-
   end
+
+  describe '#name' do
+    it 'is expected to respond to #name' do
+      expect(station).to respond_to(:name)
+    end
+
+    it 'returns station name' do
+      expect(station.name).to eq 'Homerton'
+    end
+  end
+
+  describe '#zone' do
+    it 'is expected to respond to #zone' do
+      expect(station).to respond_to(:zone)
+    end
+
+    it 'returns station name' do
+      expect(station.zone).to eq 2
+    end
+  end
+end

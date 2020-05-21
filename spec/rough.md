@@ -1,79 +1,70 @@
-An error occurred while loading ./spec/oyster_card_spec.rb.
-Failure/Error:
-  describe Oystercard do
+Oyster card class
 
-  end
+##in_journey
 
-NameError:
-  uninitialized constant Oystercard
-# ./spec/oyster_card_spec.rb:1:in `<top (required)>'
+#entry_station
+(probably keep as is, just need to keep the @entry_station = entry_station)
 
-IRB
-card = Oystercard.rb
-card.balance
-=> 0
-card.touch_in
-=> Some error
+#exit_station
+(probably keep as is, just need to keep the @exit_station = exit_station)
 
+##fare
 
-card = Oystercard.rb
-card.balance
-=> min_balance
-card.touch_in
-(in journey)
-=> card.touch_out
-card.deduct(min_balance)
+change the "value" to @journey.fare
 
-IRB
-card = Oystercard.new
-card.top_up(MIN_BALANCE)
-card.touch_in(station)
-=> @entry_station = station
-card.entry_station
-=> station
-card.touch_out
-=> nil
+##journey attr_reader
 
-IRB
-card = Oystercard.new
-card.top_up(MIN_BALANCE)
-card.touch_in(station_a)
-=> @entry_station = station_a
-card.touch_out(station_b)
-=> @exit_station = station_b
-card.journey
-=> {station_a => station_b}
+change to @journey.history
 
 
-------
-#Journey class
-1. Create an array of hashes
+=====
 
-[ {journey_1}, {journey_2}, {journey_3}]
+Station class
 
-{
-  entry_station_name => station.name,
-  entry_station_zone => station.zone,
-  exit_station_name => station.name,
-  exit_station_zone => station.zone
+entry_station = Staion.new('amersham',9)
+exit_station = Staion.new('oxford circus',1)
+
+=====
+
+Journey class
+
+# initialized in Osytercard initialization
+
+@journey = Journey.new
+@journey.entry(entry_station)
+@journey.exit(exit_station)
+
+@journey.in_journey?
+true = incomplete hash
+false = complete hash
+
+array = [{},{},{}]
+
+hash = {
+  entry station => entry_station.name
+  entry zone => entry_station.zone
+  exit station => exit_station.name
+  exit zone => exit_station.name,
+  complete? => false
 }
 
-# Journey is used in:
-touch_in > because it stores the entry station
-touch_out > because it stores the exit station
-journey > probably just gonna call the Journey class
-in_journey? > need to know when you're in a journey
+#entry
+journey << {
+  :"entry station" => entry_station.name,
+  :"entry zone" => entry_station.zone,
+  :"exit station" => nil,
+  :"exit zone" => nil
+  :"in journey?" => true
+}
 
-IRB
-# when its going well
-card = Oystercard.rb
-card.touch_in(name, zone)
-=> (in journey) + deducts penalty fare
-card.touch_out(name, zone)
-=> card.deduct(fare) + adds (penalty fare - actual fare)
+#exit
+journey.last.merge!(:"exit station" => exit_station.name, :"exit zone" => exit_station.zone, :"in journey?" => false)
 
-# when its not
-card.touch_in(name, zone)
-=> (in journey) + deducts penalty fare
+#status
+journey.last[:"in journey?"]
 
-card.touch_in 
+#journey_history
+journey.last.slice(:"entry station", :"exit station") # WRONG NEED TO LOOP
+
+#fare
+1
